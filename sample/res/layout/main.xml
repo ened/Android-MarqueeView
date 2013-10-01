@@ -1,36 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:marquee="http://schemas.android.com/apk/res-auto"
+              xmlns:tools="http://schemas.android.com/tools"
               android:orientation="vertical"
               android:layout_width="fill_parent"
               android:layout_height="fill_parent"
         >
+
     <asia.ivity.android.marqueeview.MarqueeView
             android:id="@+id/marqueeView100"
             android:layout_width="100dp"
             android:layout_height="wrap_content"
             >
+
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="WOOF1 WOOF2 WOOF3 WOOF4 WOOF5"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do."
                 android:singleLine="true"
                 android:ellipsize="end"
-                />
+                tools:ignore="HardcodedText"/>
     </asia.ivity.android.marqueeview.MarqueeView>
+
+    <!--Marquee #2: Configuration using XML attributes.-->
     <asia.ivity.android.marqueeview.MarqueeView
             android:id="@+id/marqueeView150"
             android:layout_width="150dp"
             android:layout_height="wrap_content"
+            marquee:speed="90"
+            marquee:pause="1000"
+            marquee:autoStart="true"
             >
+
         <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:text="WOOF1 WOOF2 WOOF3 WOOF4 WOOF5"
+                android:text="Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do."
                 android:textSize="20sp"
                 android:textStyle="bold"
                 android:singleLine="true"
                 android:ellipsize="end"
-                />
+                tools:ignore="HardcodedText"/>
     </asia.ivity.android.marqueeview.MarqueeView>
 </LinearLayout>
 

@@ -1,7 +1,10 @@
 package asia.ivity.android.marqueeview;
 
+import android.annotation.TargetApi;
 import android.content.Context;
+import android.content.res.TypedArray;
 import android.graphics.Paint;
+import android.os.Build;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -42,23 +45,24 @@ public class MarqueeView extends LinearLayout {
     /**
      * Control the speed. The lower this value, the faster it will scroll.
      */
-    private static final int MS_PER_PX = 60;
+    private static final int DEFAULT_SPEED = 60;
 
     /**
      * Control the pause between the animations. Also, after starting this activity.
      */
-    private static final int PAUSE_BETWEEN_ANIMATIONS = 2000;
+    private static final int DEFAULT_ANIMATION_PAUSE = 2000;
 
-    private int mSpeed = MS_PER_PX;
+    private int mSpeed = DEFAULT_SPEED;
 
-    private int mPauseBetweenAnimations = PAUSE_BETWEEN_ANIMATIONS;
+    private int mAnimationPause = DEFAULT_ANIMATION_PAUSE;
+
+    private boolean mAutoStart = false;
 
     private Interpolator mInterpolator = new LinearInterpolator();
 
     private boolean mCancelled = false;
     private int mWidth;
     private Runnable mAnimationStartRunnable;
-    private static final boolean DEBUG = true;
 
     /**
      * Sets the animation speed.
@@ -76,7 +80,7 @@ public class MarqueeView extends LinearLayout {
      * @param pause In milliseconds.
      */
     public void setPauseBetweenAnimations(int pause) {
-        this.mPauseBetweenAnimations = pause;
+        this.mAnimationPause = pause;
     }
 
     /**
@@ -97,7 +101,35 @@ public class MarqueeView extends LinearLayout {
     @SuppressWarnings({"UnusedDeclaration"})
     public MarqueeView(Context context, AttributeSet attrs) {
         super(context, attrs);
+
+        extractAttributes(attrs);
         init(context);
+    }
+
+    @TargetApi(Build.VERSION_CODES.HONEYCOMB)
+    public MarqueeView(Context context, AttributeSet attrs, int defStyle) {
+        super(context, attrs, defStyle);
+
+        extractAttributes(attrs);
+        init(context);
+    }
+
+    private void extractAttributes(AttributeSet attrs) {
+        if (getContext() == null) {
+            return;
+        }
+
+        TypedArray a = getContext().obtainStyledAttributes(attrs, R.styleable.asia_ivity_android_marqueeview_MarqueeView);
+
+        if (a == null) {
+            return;
+        }
+
+        mSpeed = a.getInteger(R.styleable.asia_ivity_android_marqueeview_MarqueeView_speed, DEFAULT_SPEED);
+        mAnimationPause = a.getInteger(R.styleable.asia_ivity_android_marqueeview_MarqueeView_pause, DEFAULT_ANIMATION_PAUSE);
+        mAutoStart = a.getBoolean(R.styleable.asia_ivity_android_marqueeview_MarqueeView_autoStart, false);
+
+        a.recycle();
     }
 
     private void init(Context context) {
@@ -108,6 +140,7 @@ public class MarqueeView extends LinearLayout {
         mPaint.setStrokeCap(Paint.Cap.ROUND);
     }
 
+
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
@@ -116,12 +149,12 @@ public class MarqueeView extends LinearLayout {
             throw new RuntimeException("MarqueeView must have exactly one child element.");
         }
 
-        View v = getChildAt(0);
-        if (!(v instanceof TextView)) {
-            throw new RuntimeException("The child view of this MarqueeView must be a TextView instance.");
-        }
-
         if (changed) {
+            View v = getChildAt(0);
+            if (!(v instanceof TextView)) {
+                throw new RuntimeException("The child view of this MarqueeView must be a TextView instance.");
+            }
+
             initView(getContext());
         }
 
@@ -132,6 +165,10 @@ public class MarqueeView extends LinearLayout {
 
         // Setup
         setupTextMarquee();
+
+        if (changed && mAutoStart) {
+            startMarquee();
+        }
     }
 
     @Override
@@ -161,7 +198,7 @@ public class MarqueeView extends LinearLayout {
                 mTextField.startAnimation(mMoveTextOut);
             }
         };
-        postDelayed(mAnimationStartRunnable, mPauseBetweenAnimations);
+        postDelayed(mAnimationStartRunnable, mAnimationPause);
     }
 
     /**
@@ -207,7 +244,7 @@ public class MarqueeView extends LinearLayout {
 
         mMoveTextIn = new TranslateAnimation(-mTextDifference, 0, 0, 0);
         mMoveTextIn.setDuration(duration);
-        mMoveTextIn.setStartOffset(mPauseBetweenAnimations);
+        mMoveTextIn.setStartOffset(mAnimationPause);
         mMoveTextIn.setInterpolator(mInterpolator);
         mMoveTextIn.setFillAfter(true);
 
@@ -261,7 +298,7 @@ public class MarqueeView extends LinearLayout {
 
         mTextDifference = Math.abs((mTextTextWidth - mWidth)) + 5;
 
-        if (DEBUG) {
+        if (BuildConfig.DEBUG) {
             Log.d(TAG, "mTextTextWidth: " + mTextTextWidth);
             Log.d(TAG, "getMeasuredWidth: " + mWidth);
 

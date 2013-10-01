@@ -11,6 +11,7 @@ public class MarqueeViewSample extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        // Marquee #1: Configuration using code.
         final MarqueeView mv = (MarqueeView) findViewById(R.id.marqueeView100);
         mv.setPauseBetweenAnimations(500);
         mv.setSpeed(10);
@@ -18,15 +19,6 @@ public class MarqueeViewSample extends Activity {
             @Override
             public void run() {
                 mv.startMarquee();
-            }
-        });
-        final MarqueeView mv150 = (MarqueeView) findViewById(R.id.marqueeView150);
-        mv150.setPauseBetweenAnimations(1000);
-        mv150.setSpeed(90);
-        getWindow().getDecorView().post(new Runnable() {
-            @Override
-            public void run() {
-                mv150.startMarquee();
             }
         });
     }
