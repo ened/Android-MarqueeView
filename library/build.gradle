@@ -1,0 +1,128 @@
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:0.5.+'
+    }
+}
+
+apply plugin: 'android-library'
+apply plugin: 'maven'
+apply plugin: 'signing'
+
+archivesBaseName = 'marqueeview'
+group = 'asia.ivity.android'
+
+dependencies {
+/*    compile 'com.google.android.gms:play-services:3.1.36+'*/
+}
+
+android {
+    compileSdkVersion 18
+    buildToolsVersion "18.0.1"
+
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            res.srcDirs = ['res']
+        }
+    }
+}
+
+// TODO: Add a task that prints the test results.
+task instrumentTest(dependsOn: connectedCheck)
+
+task apklib(type: Zip) {
+    dependsOn 'packageReleaseJar'
+    appendix = extension = 'apklib'
+
+    from 'AndroidManifest.xml'
+    into('res') {
+        from 'res'
+    }
+    into('src') {
+        from 'src'
+    }
+}
+
+artifacts {
+    archives apklib
+}
+
+signing {
+    sign configurations.archives
+}
+
+if (!hasProperty("sonatypeUsername")) {
+    sonatypeUsername = ""
+}
+if (!hasProperty("sonatypePassword")) {
+    sonatypePassword = ""
+}
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+
+            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+            snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
+                authentication(userName: sonatypeUsername, password: sonatypePassword)
+            }
+
+            modifyPom(addFilter('aar') { artifact, file ->
+                artifact.name == 'marqueeview'
+            })
+
+            modifyPom(addFilter('apklib') { artifact, file ->
+                artifact.name == 'marqueeview-apklib'
+            })
+
+            // There's no official apklib for Google Play services, so we
+            // can't really maintain that dependency for the apklib packaging.
+            pom('apklib').whenConfigured { pom ->
+                pom.dependencies = []
+            }
+        }
+    }
+}
+
+def modifyPom(pom) {
+    pom.project {
+        name 'MarqueeView'
+        description 'Extensive library for customized marquee effect.'
+        url 'https://github.com/ened/Android-MarqueeView/compare'
+
+        scm {
+            url 'https://github.com/ened/Android-MarqueeView.git'
+            connection 'git@github.com:ened/Android-MarqueeView.git'
+            developerConnection 'git@github.com:ened/Android-MarqueeView.git'
+        }
+
+        licenses {
+            license {
+                name 'BSD License'
+                url 'http://opensource.org/licenses/bsd-license.php'
+                distribution 'repo'
+            }
+        }
+
+        organization {
+            name 'Ivity Asia'
+            url 'http://www.ivity.asia'
+        }
+
+        developers {
+            developer {
+                id 'ened'
+                name 'Sebastian Roth'
+                url 'http://www.sebroth.com'
+            }
+        }
+    }
+}
