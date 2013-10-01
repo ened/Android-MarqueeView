@@ -1,7 +1,9 @@
 Android-MarqueeView
 ===================
 
-MarqueeView that supports custom timings.
+MarqueeView which supports custom timings.
+
+It can be used to fine-tune the animation speed and the pause between each movement.
 
 Usage
 =====
@@ -16,23 +18,23 @@ Including In Your Project
 If you are a Maven user you can easily include the library by specifying it as
 a dependency:
 
-  <dependency>
-    <groupId>asia.ivity.android</groupId>
-    <artifactId>marqueeview-apklib</artifactId>
-    <version>{insert-latest-version}</version>
-    <type>apklib</type>
-  </dependency>
+    <dependency>
+      <groupId>asia.ivity.android</groupId>
+      <artifactId>marqueeview-apklib</artifactId>
+      <version>{insert-latest-version}</version>
+      <type>apklib</type>
+    </dependency>
 
 If you are using gradle, you can refer to the .aar version like so:
 
-  // Ensure to fetch dependencies from maven central
-  repositories {
-    mavenCentral()
-  }
+    // Ensure to fetch dependencies from maven central
+    repositories {
+      mavenCentral()
+    }
 
-  dependencies {
-    compile 'asia.ivity.android:marqueeview:{insert-latest-version}@aar'
-  }
+    dependencies {
+      compile 'asia.ivity.android:marqueeview:{insert-latest-version}@aar'
+    }
   
 Developed By
 ============
