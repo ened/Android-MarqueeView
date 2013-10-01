@@ -96,7 +96,7 @@ def modifyPom(pom) {
     pom.project {
         name 'MarqueeView'
         description 'Extensive library for customized marquee effect.'
-        url 'https://github.com/ened/Android-MarqueeView/compare'
+        url 'https://github.com/ened/Android-MarqueeView'
 
         scm {
             url 'https://github.com/ened/Android-MarqueeView.git'
