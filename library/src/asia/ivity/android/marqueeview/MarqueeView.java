@@ -5,7 +5,9 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Paint;
 import android.os.Build;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
@@ -61,8 +63,9 @@ public class MarqueeView extends LinearLayout {
     private Interpolator mInterpolator = new LinearInterpolator();
 
     private boolean mCancelled = false;
-    private int mWidth;
     private Runnable mAnimationStartRunnable;
+
+    private boolean mStarted;
 
     /**
      * Sets the animation speed.
@@ -102,16 +105,16 @@ public class MarqueeView extends LinearLayout {
     public MarqueeView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        extractAttributes(attrs);
         init(context);
+        extractAttributes(attrs);
     }
 
     @TargetApi(Build.VERSION_CODES.HONEYCOMB)
     public MarqueeView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        extractAttributes(attrs);
         init(context);
+        extractAttributes(attrs);
     }
 
     private void extractAttributes(AttributeSet attrs) {
@@ -138,8 +141,9 @@ public class MarqueeView extends LinearLayout {
         mPaint.setAntiAlias(true);
         mPaint.setStrokeWidth(1);
         mPaint.setStrokeCap(Paint.Cap.ROUND);
-    }
 
+        mInterpolator = new LinearInterpolator();
+    }
 
     @Override
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
@@ -156,40 +160,25 @@ public class MarqueeView extends LinearLayout {
             }
 
             initView(getContext());
+
+            prepareAnimation();
+
+            if (mAutoStart) {
+                startMarquee();
+            }
         }
-
-        mWidth = getMeasuredWidth();
-
-        // Calculate
-        prepare();
-
-        // Setup
-        setupTextMarquee();
-
-        if (changed && mAutoStart) {
-            startMarquee();
-        }
-    }
-
-    @Override
-    public void setOnClickListener(OnClickListener l) {
-        super.setOnClickListener(l);
-
-        mTextField.setOnClickListener(l);
     }
 
     /**
      * Starts the configured marquee effect.
      */
     public void startMarquee() {
-        prepareTextFields();
-
-        // Start
         if (mMarqueeNeeded) {
             startTextFieldAnimation();
         }
 
         mCancelled = false;
+        mStarted = true;
     }
 
     private void startTextFieldAnimation() {
@@ -205,8 +194,6 @@ public class MarqueeView extends LinearLayout {
      * Disables the animations.
      */
     public void reset() {
-        Log.d(TAG, "Resetting animation.");
-
         mCancelled = true;
 
         if (mAnimationStartRunnable != null) {
@@ -214,31 +201,39 @@ public class MarqueeView extends LinearLayout {
         }
 
         mTextField.clearAnimation();
-
-        prepareTextFields();
+        mStarted = false;
 
         mMoveTextOut.reset();
         mMoveTextIn.reset();
 
-        mScrollView.removeView(mTextField);
-        mScrollView.addView(mTextField);
-
-        mTextField.setEllipsize(TextUtils.TruncateAt.END);
+//        mScrollView.removeView(mTextField);
+//        mScrollView.addView(mTextField);
 
         invalidate();
     }
 
-    private void prepareTextFields() {
-        mTextField.setEllipsize(TextUtils.TruncateAt.END);
-        cutTextView(mTextField);
-    }
+    private void prepareAnimation() {
+        // Measure
+        mPaint.setTextSize(mTextField.getTextSize());
+        mPaint.setTypeface(mTextField.getTypeface());
+        float mTextWidth = mPaint.measureText(mTextField.getText().toString());
 
-    private void setupTextMarquee() {
+        // See how much functions are needed at all
+        mMarqueeNeeded = mTextWidth > getMeasuredWidth();
+
+        mTextDifference = Math.abs((mTextWidth - getMeasuredWidth())) + 5;
+
+        if (BuildConfig.DEBUG) {
+            Log.d(TAG, "mTextWidth       : " + mTextWidth);
+            Log.d(TAG, "measuredWidth    : " + getMeasuredWidth());
+            Log.d(TAG, "mMarqueeNeeded   : " + mMarqueeNeeded);
+            Log.d(TAG, "mTextDifference  : " + mTextDifference);
+        }
+
         final int duration = (int) (mTextDifference * mSpeed);
 
         mMoveTextOut = new TranslateAnimation(0, -mTextDifference, 0, 0);
         mMoveTextOut.setDuration(duration);
-        mInterpolator = new LinearInterpolator();
         mMoveTextOut.setInterpolator(mInterpolator);
         mMoveTextOut.setFillAfter(true);
 
@@ -250,7 +245,7 @@ public class MarqueeView extends LinearLayout {
 
         mMoveTextOut.setAnimationListener(new Animation.AnimationListener() {
             public void onAnimationStart(Animation animation) {
-                expandTextView(mTextField);
+                expandTextView();
             }
 
             public void onAnimationEnd(Animation animation) {
@@ -271,7 +266,7 @@ public class MarqueeView extends LinearLayout {
 
             public void onAnimationEnd(Animation animation) {
 
-                cutTextView(mTextField);
+                cutTextView();
 
                 if (mCancelled) {
                     return;
@@ -284,34 +279,6 @@ public class MarqueeView extends LinearLayout {
         });
     }
 
-    private void prepare() {
-        // Remember current state
-        final float diff1 = mTextDifference;
-
-        // Measure
-        mPaint.setTextSize(mTextField.getTextSize());
-        mPaint.setTypeface(mTextField.getTypeface());
-        float mTextTextWidth = mPaint.measureText(mTextField.getText().toString());
-
-        // See how much functions are needed at all
-        mMarqueeNeeded = mTextTextWidth > mWidth;
-
-        mTextDifference = Math.abs((mTextTextWidth - mWidth)) + 5;
-
-        if (BuildConfig.DEBUG) {
-            Log.d(TAG, "mTextTextWidth: " + mTextTextWidth);
-            Log.d(TAG, "getMeasuredWidth: " + mWidth);
-
-            Log.d(TAG, "mMarqueeNeeded: " + mMarqueeNeeded);
-
-            Log.d(TAG, "mTextDifference: " + mTextDifference);
-        }
-
-        if (diff1 != mTextDifference) {
-            setupTextMarquee();
-        }
-    }
-
     private void initView(Context context) {
         // Scroll View
         LayoutParams sv1lp = new LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.WRAP_CONTENT);
@@ -321,28 +288,54 @@ public class MarqueeView extends LinearLayout {
         // Scroll View 1 - Text Field
         mTextField = (TextView) getChildAt(0);
         removeView(mTextField);
-        Log.d(TAG, "Count: " + getChildCount());
-//                new TextView(context);
-//        mTextField.setSingleLine(true);
-//        mTextField.setTextColor(Color.WHITE);
-//        mTextField.setEllipsize(TextUtils.TruncateAt.END);
-//        mTextField.setTypeface(null, Typeface.BOLD);
+
         mScrollView.addView(mTextField, new ScrollView.LayoutParams(TEXTVIEW_VIRTUAL_WIDTH, LayoutParams.WRAP_CONTENT));
+
+        mTextField.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i2, int i3) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                final boolean continueAnimation = mStarted;
+
+                reset();
+                prepareAnimation();
+
+                cutTextView();
+
+                post(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (continueAnimation) {
+                            startMarquee();
+                        }
+                    }
+                });
+            }
+        });
 
         addView(mScrollView, sv1lp);
     }
 
-    private void expandTextView(TextView textView) {
-        ViewGroup.LayoutParams lp = textView.getLayoutParams();
+    private void expandTextView() {
+        ViewGroup.LayoutParams lp = mTextField.getLayoutParams();
         lp.width = 2000;
-        textView.setLayoutParams(lp);
+        mTextField.setLayoutParams(lp);
     }
 
-    private void cutTextView(TextView textView) {
-        if (textView.getWidth() != mWidth) {
-            ViewGroup.LayoutParams lp = textView.getLayoutParams();
-            lp.width = mWidth;
-            textView.setLayoutParams(lp);
+    private void cutTextView() {
+        if (mTextField.getWidth() != getMeasuredWidth()) {
+            ViewGroup.LayoutParams lp = mTextField.getLayoutParams();
+            lp.width = getMeasuredWidth();
+            mTextField.setLayoutParams(lp);
         }
     }
 }
