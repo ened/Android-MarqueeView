@@ -1,13 +1,3 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
-    }
-}
-
 apply plugin: 'android-library'
 apply plugin: 'maven'
 apply plugin: 'signing'
@@ -20,37 +10,20 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.0.1"
-
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            res.srcDirs = ['res']
-        }
-    }
+	compileSdkVersion 19
+	buildToolsVersion "19"
+	
+	sourceSets {
+		main {
+			manifest.srcFile 'AndroidManifest.xml'
+			java.srcDirs = ['src']
+			res.srcDirs = ['res']
+		}
+	}
 }
 
 // TODO: Add a task that prints the test results.
 task instrumentTest(dependsOn: connectedCheck)
-
-task apklib(type: Zip) {
-    dependsOn 'packageReleaseJar'
-    appendix = extension = 'apklib'
-
-    from 'AndroidManifest.xml'
-    into('res') {
-        from 'res'
-    }
-    into('src') {
-        from 'src'
-    }
-}
-
-artifacts {
-    archives apklib
-}
 
 signing {
     sign configurations.archives
@@ -78,16 +51,6 @@ uploadArchives {
             modifyPom(addFilter('aar') { artifact, file ->
                 artifact.name == 'marqueeview'
             })
-
-            modifyPom(addFilter('apklib') { artifact, file ->
-                artifact.name == 'marqueeview-apklib'
-            })
-
-            // There's no official apklib for Google Play services, so we
-            // can't really maintain that dependency for the apklib packaging.
-            pom('apklib').whenConfigured { pom ->
-                pom.dependencies = []
-            }
         }
     }
 }

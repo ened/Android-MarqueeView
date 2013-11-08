@@ -1,13 +1,3 @@
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
-    }
-}
-
 apply plugin: 'android'
 
 dependencies {
@@ -15,20 +5,14 @@ dependencies {
 }
 
 android {
-    compileSdkVersion 18
-    buildToolsVersion "18.0.1"
+	compileSdkVersion 19
+	buildToolsVersion "19"
 
-    sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            res.srcDirs = ['res']
-        }
-    }
-}
-
-task startDemo(type: Exec) {
-    dependsOn 'installDebug'
-    def adb = new File("${System.env.ANDROID_HOME}", "platform-tools${File.separator}adb")
-    commandLine adb, "shell", "am", "start", "-n", "com.google.maps.android.utils.demo/.MainActivity"
+	sourceSets {
+		main {
+			manifest.srcFile 'AndroidManifest.xml'
+			java.srcDirs = ['src']
+			res.srcDirs = ['res']
+		}
+	}
 }

@@ -4,9 +4,23 @@ buildscript {
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:0.5.+'
+        classpath 'com.android.tools.build:gradle:0.6.+'
         classpath 'com.github.townsfolk:gradle-release:1.2'
     }
 }
 
+task wrapper(type: Wrapper) {
+    gradleVersion = '1.8'
+}
+
 apply plugin: 'release'
+
+allprojects {
+  repositories {
+    mavenCentral()
+  }
+
+  tasks.withType(Compile) {
+    options.encoding = "UTF-8"
+  }
+}
