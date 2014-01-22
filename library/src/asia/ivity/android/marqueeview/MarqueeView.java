@@ -338,4 +338,24 @@ public class MarqueeView extends LinearLayout {
             mTextField.setLayoutParams(lp);
         }
     }
+    
+        @Override
+    public View getChildAt(int index) {
+        View parent = super.getChildAt(index);
+        View child = null;
+        
+        // TextView's width = MATCH/FILL_PARENT. Android(?) adds a ScrollView parent, so getChildAt(0)
+        // would return that ScrollView with the TextView as child. Check for that:
+        if (parent instanceof ScrollView) {  
+            child = ((ScrollView) parent).getChildAt(0);
+        }
+
+        // There is no ScrolView parent, so assign parent to it (super.getChildAt(index)) which should be
+        // the TextView itself
+        if (child == null) { 
+            child = parent;
+        }
+
+        return child;
+    }
 }
