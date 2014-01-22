@@ -348,7 +348,7 @@ public class MarqueeView extends LinearLayout {
         }
 
         if (child == null) {
-            return child = parent;
+            child = parent;
         }
 
         return child;
