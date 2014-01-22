@@ -338,4 +338,19 @@ public class MarqueeView extends LinearLayout {
             mTextField.setLayoutParams(lp);
         }
     }
+    
+    @Override
+    public View getChildAt(int index) {
+        View parent = super.getChildAt(index);
+        View child = null;
+        if (parent instanceof ScrollView) {
+            child = ((ScrollView) parent).getChildAt(0);
+        }
+
+        if (child == null) {
+            return child = parent;
+        }
+
+        return child;
+    }
 }
