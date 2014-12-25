@@ -6,7 +6,6 @@ import android.content.res.TypedArray;
 import android.graphics.Paint;
 import android.os.Build;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -155,6 +154,11 @@ public class MarqueeView extends LinearLayout {
 
         if (changed) {
             View v = getChildAt(0);
+            // Fixes #1: Exception when using android:layout_width="fill_parent". There seems to be an additional ScrollView parent.
+            if (v instanceof ScrollView && ((ScrollView) v).getChildCount() == 1) {
+                v = ((ScrollView) v).getChildAt(0);
+            }
+
             if (!(v instanceof TextView)) {
                 throw new RuntimeException("The child view of this MarqueeView must be a TextView instance.");
             }
