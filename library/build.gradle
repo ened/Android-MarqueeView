@@ -1,4 +1,4 @@
-apply plugin: 'android-library'
+apply plugin: 'com.android.library'
 apply plugin: 'maven'
 apply plugin: 'signing'
 
@@ -11,15 +11,7 @@ dependencies {
 
 android {
 	compileSdkVersion 19
-	buildToolsVersion "19"
-	
-	sourceSets {
-		main {
-			manifest.srcFile 'AndroidManifest.xml'
-			java.srcDirs = ['src']
-			res.srcDirs = ['res']
-		}
-	}
+	buildToolsVersion "21.1.2"
 }
 
 // TODO: Add a task that prints the test results.
@@ -29,28 +21,23 @@ signing {
     sign configurations.archives
 }
 
-if (!hasProperty("sonatypeUsername")) {
-    sonatypeUsername = ""
-}
-if (!hasProperty("sonatypePassword")) {
-    sonatypePassword = ""
-}
+if(hasProperty("sonatypeUsername") && hasProperty("sonatypePassword")) {
+    uploadArchives {
+        repositories {
+            mavenDeployer {
+                beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
 
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
+                repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
+                snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
+                    authentication(userName: sonatypeUsername, password: sonatypePassword)
+                }
 
-            repository(url: 'https://oss.sonatype.org/service/local/staging/deploy/maven2') {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
+                modifyPom(addFilter('aar') { artifact, file ->
+                    artifact.name == 'marqueeview'
+                })
             }
-            snapshotRepository(url: 'https://oss.sonatype.org/content/repositories/snapshots/') {
-                authentication(userName: sonatypeUsername, password: sonatypePassword)
-            }
-
-            modifyPom(addFilter('aar') { artifact, file ->
-                artifact.name == 'marqueeview'
-            })
         }
     }
 }

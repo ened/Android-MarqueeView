@@ -1,4 +1,4 @@
-apply plugin: 'android'
+apply plugin: 'com.android.application'
 
 dependencies {
     compile project(':library')
@@ -6,13 +6,5 @@ dependencies {
 
 android {
 	compileSdkVersion 19
-	buildToolsVersion "19"
-
-	sourceSets {
-		main {
-			manifest.srcFile 'AndroidManifest.xml'
-			java.srcDirs = ['src']
-			res.srcDirs = ['res']
-		}
-	}
+	buildToolsVersion "21.1.2"
 }
