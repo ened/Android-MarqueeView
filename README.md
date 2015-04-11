@@ -5,6 +5,8 @@ MarqueeView which supports custom timings.
 
 It can be used to fine-tune the animation speed and the pause between each movement.
 
+[![Build Status](https://travis-ci.org/ened/Android-MarqueeView.svg?branch=master)](https://travis-ci.org/ened/Android-MarqueeView/builds)
+
 Usage
 =====
 
