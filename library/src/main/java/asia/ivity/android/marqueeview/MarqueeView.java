@@ -152,7 +152,7 @@ public class MarqueeView extends LinearLayout {
             throw new RuntimeException("MarqueeView must have exactly one child element.");
         }
 
-        if (changed) {
+        if (changed && mScrollView == null) {
             View v = getChildAt(0);
             // Fixes #1: Exception when using android:layout_width="fill_parent". There seems to be an additional ScrollView parent.
             if (v instanceof ScrollView && ((ScrollView) v).getChildCount() == 1) {
