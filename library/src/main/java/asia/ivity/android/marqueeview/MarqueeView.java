@@ -331,7 +331,7 @@ public class MarqueeView extends LinearLayout {
 
     private void expandTextView() {
         ViewGroup.LayoutParams lp = mTextField.getLayoutParams();
-        lp.width = 2000;
+        lp.width = (int)this.mPaint.measureText(this.mTextField.getText().toString());
         mTextField.setLayoutParams(lp);
     }
 
