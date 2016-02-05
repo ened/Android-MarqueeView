@@ -97,14 +97,14 @@ public class MarqueeView extends LinearLayout {
     @SuppressWarnings({"UnusedDeclaration"})
     public MarqueeView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
     public MarqueeView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        init(context);
+        init();
         extractAttributes(attrs);
     }
 
@@ -112,7 +112,7 @@ public class MarqueeView extends LinearLayout {
     public MarqueeView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        init(context);
+        init();
         extractAttributes(attrs);
     }
 
@@ -134,7 +134,7 @@ public class MarqueeView extends LinearLayout {
         a.recycle();
     }
 
-    private void init(Context context) {
+    private void init() {
         // init helper
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
