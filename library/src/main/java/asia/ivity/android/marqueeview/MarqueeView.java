@@ -210,8 +210,7 @@ public class MarqueeView extends LinearLayout {
         mMoveTextOut.reset();
         mMoveTextIn.reset();
 
-//        mScrollView.removeView(mTextField);
-//        mScrollView.addView(mTextField);
+        cutTextView();
 
         invalidate();
     }
@@ -254,6 +253,7 @@ public class MarqueeView extends LinearLayout {
 
             public void onAnimationEnd(Animation animation) {
                 if (mCancelled) {
+                    reset();
                     return;
                 }
 
@@ -273,6 +273,7 @@ public class MarqueeView extends LinearLayout {
                 cutTextView();
 
                 if (mCancelled) {
+                    reset();
                     return;
                 }
                 startTextFieldAnimation();
