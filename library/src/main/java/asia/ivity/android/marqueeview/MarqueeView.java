@@ -148,7 +148,7 @@ public class MarqueeView extends LinearLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
-        if (getChildCount() == 0 || getChildCount() > 1) {
+        if (getChildCount() != 1) {
             throw new RuntimeException("MarqueeView must have exactly one child element.");
         }
 
