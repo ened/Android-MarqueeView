@@ -10,7 +10,6 @@ import android.text.TextWatcher;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.Gravity;
-import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.Interpolator;
@@ -97,14 +96,14 @@ public class MarqueeView extends LinearLayout {
     @SuppressWarnings({"UnusedDeclaration"})
     public MarqueeView(Context context) {
         super(context);
-        init(context);
+        init();
     }
 
     @SuppressWarnings({"UnusedDeclaration"})
     public MarqueeView(Context context, AttributeSet attrs) {
         super(context, attrs);
 
-        init(context);
+        init();
         extractAttributes(attrs);
     }
 
@@ -112,7 +111,7 @@ public class MarqueeView extends LinearLayout {
     public MarqueeView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
 
-        init(context);
+        init();
         extractAttributes(attrs);
     }
 
@@ -134,7 +133,7 @@ public class MarqueeView extends LinearLayout {
         a.recycle();
     }
 
-    private void init(Context context) {
+    private void init() {
         // init helper
         mPaint = new Paint();
         mPaint.setAntiAlias(true);
@@ -148,18 +147,12 @@ public class MarqueeView extends LinearLayout {
     protected void onLayout(boolean changed, int l, int t, int r, int b) {
         super.onLayout(changed, l, t, r, b);
 
-        if (getChildCount() == 0 || getChildCount() > 1) {
+        if (getChildCount() != 1) {
             throw new RuntimeException("MarqueeView must have exactly one child element.");
         }
 
         if (changed && mScrollView == null) {
-            View v = getChildAt(0);
-            // Fixes #1: Exception when using android:layout_width="fill_parent". There seems to be an additional ScrollView parent.
-            if (v instanceof ScrollView && ((ScrollView) v).getChildCount() == 1) {
-                v = ((ScrollView) v).getChildAt(0);
-            }
-
-            if (!(v instanceof TextView)) {
+            if (!(getChildAt(0) instanceof TextView)) {
                 throw new RuntimeException("The child view of this MarqueeView must be a TextView instance.");
             }
 
@@ -210,8 +203,7 @@ public class MarqueeView extends LinearLayout {
         mMoveTextOut.reset();
         mMoveTextIn.reset();
 
-//        mScrollView.removeView(mTextField);
-//        mScrollView.addView(mTextField);
+        cutTextView();
 
         invalidate();
     }
@@ -254,6 +246,7 @@ public class MarqueeView extends LinearLayout {
 
             public void onAnimationEnd(Animation animation) {
                 if (mCancelled) {
+                    reset();
                     return;
                 }
 
@@ -273,6 +266,7 @@ public class MarqueeView extends LinearLayout {
                 cutTextView();
 
                 if (mCancelled) {
+                    reset();
                     return;
                 }
                 startTextFieldAnimation();
@@ -331,7 +325,7 @@ public class MarqueeView extends LinearLayout {
 
     private void expandTextView() {
         ViewGroup.LayoutParams lp = mTextField.getLayoutParams();
-        lp.width = 2000;
+        lp.width = TEXTVIEW_VIRTUAL_WIDTH;
         mTextField.setLayoutParams(lp);
     }
 
