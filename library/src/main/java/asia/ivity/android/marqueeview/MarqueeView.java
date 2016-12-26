@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Paint;
 import android.os.Build;
+import android.support.v7.widget.AppCompatTextView;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -32,7 +33,7 @@ public class MarqueeView extends LinearLayout {
     private static final int TEXTVIEW_VIRTUAL_WIDTH = 2000;
 
     private Animation mMoveTextOut = null;
-    private Animation mMoveTextIn = null;
+    private Animation mMoveTextIn  = null;
 
     private Paint mPaint;
 
@@ -152,8 +153,25 @@ public class MarqueeView extends LinearLayout {
         }
 
         if (changed && mScrollView == null) {
-            if (!(getChildAt(0) instanceof TextView)) {
-                throw new RuntimeException("The child view of this MarqueeView must be a TextView instance.");
+            boolean exception = true;
+
+            if (exception) {
+                if (getChildAt(0) instanceof TextView) {
+                    exception = false;
+                }
+            }
+
+            /**
+             * when building your app autoconvert TextView to AppCompatTextView
+             */
+            if (exception) {
+                if (getChildAt(0) instanceof AppCompatTextView) {
+                    exception = false;
+                }
+            }
+
+            if (exception) {
+                throw new RuntimeException("The child view of this MarqueeView must be a TextView || AppCompatTextView instance.");
             }
 
             initView(getContext());
